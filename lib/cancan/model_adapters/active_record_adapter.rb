@@ -41,11 +41,7 @@ module CanCan
         if override_scope
           @model_class.where(nil).merge(override_scope)
         elsif @model_class.respond_to?(:where) && @model_class.respond_to?(:joins)
-          if mergeable_conditions?
-            build_relation(conditions)
-          else
-            build_relation(*(@rules.map(&:conditions)))
-          end
+          build_relation(conditions)
         else
           @model_class.all(:conditions => conditions, :joins => joins)
         end
@@ -74,10 +70,6 @@ module CanCan
           end
           result_hash
         end
-      end
-
-      def mergeable_conditions?
-        @rules.find {|rule| rule.unmergeable? }.blank?
       end
 
       def override_scope
