@@ -6,7 +6,7 @@ module CanCan
       end
 
       def self.override_conditions_hash_matching?(subject, conditions)
-        conditions.any? do |k,v|
+        conditions.any? do |k,_v|
           key_is_not_symbol = lambda { !k.kind_of?(Symbol) }
           subject_value_is_array = lambda do
             subject.respond_to?(k) && subject.send(k).is_a?(Array)
@@ -24,7 +24,7 @@ module CanCan
 
       def database_records
         if @rules.size == 0
-          @model_class.where(:_id => {'$exists' => false, '$type' => 7}) # return no records in Mongoid
+          @model_class.where(_id: {'$exists' => false, '$type' => 7}) # return no records in Mongoid
         elsif @rules.size == 1 && @rules[0].conditions.is_a?(Mongoid::Criteria)
           @rules[0].conditions
         else
@@ -59,7 +59,7 @@ module CanCan
               v = simplify_relations(relation_class_name.constantize, v)
               relation_ids = relation_class_name.constantize.where(v).only(:id).map(&:id)
               k = "#{k}_id"
-              v = { "$in" => relation_ids }
+              v = { '$in' => relation_ids }
             end
             [k,v]
           }

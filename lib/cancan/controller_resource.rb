@@ -12,7 +12,7 @@ module CanCan
     end
 
     def self.before_callback_name(options)
-      if ActiveSupport.respond_to?(:version) && ActiveSupport.version >= Gem::Version.new("4")
+      if ActiveSupport.respond_to?(:version) && ActiveSupport.version >= Gem::Version.new('4')
         options.delete(:prepend) ? :prepend_before_action : :before_action
       else
         options.delete(:prepend) ? :prepend_before_filter : :before_filter
@@ -24,9 +24,9 @@ module CanCan
       @params = controller.params
       @options = args.extract_options!
       @name = args.first
-      raise CanCan::ImplementationRemoved, "The :nested option is no longer supported, instead use :through with separate load/authorize call." if @options[:nested]
-      raise CanCan::ImplementationRemoved, "The :name option is no longer supported, instead pass the name as the first argument." if @options[:name]
-      raise CanCan::ImplementationRemoved, "The :resource option has been renamed back to :class, use false if no class." if @options[:resource]
+      raise CanCan::ImplementationRemoved, 'The :nested option is no longer supported, instead use :through with separate load/authorize call.' if @options[:nested]
+      raise CanCan::ImplementationRemoved, 'The :name option is no longer supported, instead pass the name as the first argument.' if @options[:name]
+      raise CanCan::ImplementationRemoved, 'The :resource option has been renamed back to :class, use false if no class.' if @options[:resource]
     end
 
     def load_and_authorize_resource
@@ -98,7 +98,7 @@ module CanCan
     end
 
     def initial_attributes
-      current_ability.attributes_for(@params[:action].to_sym, resource_class).delete_if do |key, value|
+      current_ability.attributes_for(@params[:action].to_sym, resource_class).delete_if do |key, _value|
         resource_params && resource_params.include?(key)
       end
     end
@@ -110,8 +110,8 @@ module CanCan
         if @options[:find_by]
           if resource_base.respond_to? "find_by_#{@options[:find_by]}!"
             resource_base.send("find_by_#{@options[:find_by]}!", id_param)
-          elsif resource_base.respond_to? "find_by"
-            resource_base.send("find_by", { @options[:find_by].to_sym => id_param })
+          elsif resource_base.respond_to? 'find_by'
+            resource_base.send('find_by', { @options[:find_by].to_sym => id_param })
           else
             resource_base.send(@options[:find_by], id_param)
           end
