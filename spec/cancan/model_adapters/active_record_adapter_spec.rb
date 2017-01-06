@@ -236,7 +236,7 @@ if defined? CanCan::ModelAdapters::ActiveRecordAdapter
       expect(@ability.model_adapter(Article, :read).database_records.to_sql.strip.squeeze(' ')).to eq(%q(SELECT "articles".* FROM "articles" WHERE (1 == 0)))
     end
 
-    it "returns non-mathcing SQL if only clause is a single cannot clause" do
+    it "returns non-matching SQL if only clause is a single cannot clause" do
       @ability.cannot :read, Article
       expect(@ability.model_adapter(Article, :read).database_records.to_sql.strip.squeeze(' ')).to eq(%q(SELECT "articles".* FROM "articles" WHERE (1 == 0)))
     end
