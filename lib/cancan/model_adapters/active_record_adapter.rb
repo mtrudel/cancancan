@@ -5,15 +5,7 @@ module CanCan
         if override_scope
           @model_class.where(nil).merge(override_scope)
         else
-          positive_relations = []
-          negative_relations = []
-          @rules.reverse.each do |rule|
-            if rule.base_behavior
-              positive_relations << relation_for(rule)
-            else
-              negative_relations << relation_for(rule)
-            end
-          end
+          positive_relations, negative_relations = build_relations(@rules)
           if positive_relations.empty?
             @model_class.where('1 == 0')
           else
@@ -27,8 +19,21 @@ module CanCan
           end
         end
       end
-      
+
       private
+
+      def build_relations(rules)
+        positive_relations = []
+        negative_relations = []
+        rules.reverse.each do |rule|
+          if rule.base_behavior
+            positive_relations << relation_for(rule)
+          else
+            negative_relations << relation_for(rule)
+          end
+        end
+        [positive_relations, negative_relations]
+      end
 
       def relation_for(rule)
         @model_class.where(tableized_conditions(rule.conditions)).joins(joins_for(rule))
