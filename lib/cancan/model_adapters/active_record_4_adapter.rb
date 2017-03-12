@@ -20,9 +20,11 @@ module CanCan
         # Get the value of the attribute as an integer.
         attribute = enum[subject.send(name)]
         # Check to see if the value matches the condition.
-        value.is_a?(Enumerable) ? 
-          (value.include? attribute) :
+        if value.is_a?(Enumerable)
+          value.include? attribute
+        else
           attribute == value
+        end
       end
     end
   end

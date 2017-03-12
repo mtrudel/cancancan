@@ -10,7 +10,7 @@ describe CanCan::InheritedResource do
     class Model
       attr_accessor :name
 
-      def initialize(attributes={})
+      def initialize(attributes = {})
         attributes.each do |attribute, value|
           send("#{attribute}=", value)
         end
@@ -19,7 +19,7 @@ describe CanCan::InheritedResource do
 
     allow(controller).to receive(:params) { params }
     allow(controller).to receive(:current_ability) { ability }
-    allow(controller_class).to receive(:cancan_skipper) { {authorize: {}, load: {}} }
+    allow(controller_class).to receive(:cancan_skipper) { { authorize: {}, load: {} } }
   end
 
   it 'show loads resource through controller.resource' do
@@ -61,7 +61,7 @@ describe CanCan::InheritedResource do
   end
 
   it 'overrides initial attributes with params' do
-    params.merge!(action: 'new', model: {name: 'from params'})
+    params.merge!(action: 'new', model: { name: 'from params' })
     ability.can(:create, Model, name: 'from conditions')
     allow(controller).to receive(:build_resource) { Struct.new(:name).new }
     resource = CanCan::ControllerResource.new(controller)

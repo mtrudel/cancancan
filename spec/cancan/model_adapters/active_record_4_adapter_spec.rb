@@ -18,7 +18,7 @@ if defined? CanCan::ModelAdapters::ActiveRecord4Adapter
         end
 
         class Parent < ActiveRecord::Base
-          has_many :children, lambda { order(id: :desc) }
+          has_many :children, -> { order(id: :desc) }
         end
 
         class Child < ActiveRecord::Base
@@ -35,7 +35,8 @@ if defined? CanCan::ModelAdapters::ActiveRecord4Adapter
         child1 = Child.create!(parent: parent, created_at: 1.hours.ago)
         child2 = Child.create!(parent: parent, created_at: 2.hours.ago)
 
-        expect(Parent.accessible_by(@ability).order(created_at: :asc).includes(:children).first.children).to eq [child2, child1]
+        expect(Parent.accessible_by(@ability).order(created_at: :asc).includes(:children).first.children)
+          .to eq [child2, child1]
       end
 
       if ActiveRecord::VERSION::MINOR >= 1
@@ -57,9 +58,9 @@ if defined? CanCan::ModelAdapters::ActiveRecord4Adapter
           # A condition with a single value.
           @ability.can :read, Shape, color: Shape.colors[:green]
 
-          expect(@ability.cannot? :read, red).to be true
-          expect(@ability.can? :read, green).to be true
-          expect(@ability.cannot? :read, blue).to be true
+          expect(@ability.cannot?(:read, red)).to be true
+          expect(@ability.can?(:read, green)).to be true
+          expect(@ability.cannot?(:read, blue)).to be true
 
           accessible = Shape.accessible_by(@ability)
           expect(accessible).to contain_exactly(green)
@@ -68,9 +69,9 @@ if defined? CanCan::ModelAdapters::ActiveRecord4Adapter
           @ability.can :update, Shape, color: [Shape.colors[:red],
                                                Shape.colors[:blue]]
 
-          expect(@ability.can? :update, red).to be true
-          expect(@ability.cannot? :update, green).to be true
-          expect(@ability.can? :update, blue).to be true
+          expect(@ability.can?(:update, red)).to be true
+          expect(@ability.cannot?(:update, green)).to be true
+          expect(@ability.can?(:update, blue)).to be true
 
           accessible = Shape.accessible_by(@ability, :update)
           expect(accessible).to contain_exactly(red, blue)
@@ -97,10 +98,10 @@ if defined? CanCan::ModelAdapters::ActiveRecord4Adapter
           # A condition with a dual filter.
           @ability.can :read, Disc, color: Disc.colors[:green], shape: Disc.shapes[:rectangle]
 
-          expect(@ability.cannot? :read, red_triangle).to be true
-          expect(@ability.cannot? :read, green_triangle).to be true
-          expect(@ability.can? :read, green_rectangle).to be true
-          expect(@ability.cannot? :read, blue_rectangle).to be true
+          expect(@ability.cannot?(:read, red_triangle)).to be true
+          expect(@ability.cannot?(:read, green_triangle)).to be true
+          expect(@ability.can?(:read, green_rectangle)).to be true
+          expect(@ability.cannot?(:read, blue_rectangle)).to be true
 
           accessible = Disc.accessible_by(@ability)
           expect(accessible).to contain_exactly(green_rectangle)
@@ -111,10 +112,15 @@ if defined? CanCan::ModelAdapters::ActiveRecord4Adapter
     if Gem::Specification.find_all_by_name('pg').any?
       context 'with postgresql' do
         before :each do
-          ActiveRecord::Base.establish_connection(adapter: 'postgresql', database: 'postgres', schema_search_path: 'public')
+          ActiveRecord::Base.establish_connection(adapter: 'postgresql',
+                                                  database: 'postgres',
+                                                  schema_search_path: 'public')
           ActiveRecord::Base.connection.drop_database('cancan_postgresql_spec')
-          ActiveRecord::Base.connection.create_database 'cancan_postgresql_spec', 'encoding' => 'utf-8', 'adapter' => 'postgresql'
-          ActiveRecord::Base.establish_connection(adapter: 'postgresql', database: 'cancan_postgresql_spec')
+          ActiveRecord::Base.connection.create_database('cancan_postgresql_spec',
+                                                        'encoding' => 'utf-8',
+                                                        'adapter' => 'postgresql')
+          ActiveRecord::Base.establish_connection(adapter: 'postgresql',
+                                                  database: 'cancan_postgresql_spec')
           ActiveRecord::Migration.verbose = false
           ActiveRecord::Schema.define do
             create_table(:parents) do |t|
@@ -128,7 +134,7 @@ if defined? CanCan::ModelAdapters::ActiveRecord4Adapter
           end
 
           class Parent < ActiveRecord::Base
-            has_many :children, lambda { order(id: :desc) }
+            has_many :children, -> { order(id: :desc) }
           end
 
           class Child < ActiveRecord::Base
@@ -139,12 +145,12 @@ if defined? CanCan::ModelAdapters::ActiveRecord4Adapter
         end
 
         it 'allows overlapping conditions in SQL and merge with hash conditions' do
-          @ability.can :read, Parent, children: {parent_id: 1}
-          @ability.can :read, Parent, children: {parent_id: 1}
+          @ability.can :read, Parent, children: { parent_id: 1 }
+          @ability.can :read, Parent, children: { parent_id: 1 }
 
           parent = Parent.create!
-          child1 = Child.create!(parent: parent, created_at: 1.hours.ago)
-          child2 = Child.create!(parent: parent, created_at: 2.hours.ago)
+          Child.create!(parent: parent, created_at: 1.hours.ago)
+          Child.create!(parent: parent, created_at: 2.hours.ago)
 
           expect(Parent.accessible_by(@ability)).to eq([parent])
         end

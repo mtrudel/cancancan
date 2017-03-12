@@ -1,7 +1,5 @@
 class Ability
   include CanCan::Ability
 
-  def initialize(user)
-  end
+  def initialize(user); end
 end
-
